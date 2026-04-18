@@ -344,16 +344,12 @@
             color: var(--dark);
         }
 
-        .gender-icon {
-            font-size: 1.5rem;
-        }
-
         .student-item.blocked {
             opacity: 0.6;
             background: #fdfdfd;
         }
 
-        .student-item.blocked .student-info span:not(.gender-icon) {
+        .student-item.blocked .student-info span {
             text-decoration: line-through;
             color: var(--text-gray);
         }
@@ -1101,8 +1097,8 @@
                     <div class="class-name">🏫 ${turmaName}</div>
                     <div class="class-count">${alunos.length} alunos cadastrados</div>
                     <div class="class-stats">
-                        <span title="Meninos" style="color: #3498db; font-weight:800;">👦 ${boys}</span>
-                        <span title="Meninas" style="color: #e84393; font-weight:800;">👧 ${girls}</span>
+                        <span title="Meninos" style="color: #3498db; font-weight:800;">M: ${boys}</span>
+                        <span title="Meninas" style="color: #e84393; font-weight:800;">F: ${girls}</span>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1127,8 +1123,8 @@
 
             // Pílulas de estatísticas dinâmicas e amigáveis baseada no design do APP
             document.getElementById('detalhes-turma-stats').innerHTML = `
-                <span style="background: rgba(52, 152, 219, 0.15); padding: 8px 16px; border-radius: 20px; font-weight:800; color: #2980b9;">👦 ${boys}</span>
-                <span style="background: rgba(232, 67, 147, 0.15); padding: 8px 16px; border-radius: 20px; font-weight:800; color: #d63031;">👧 ${girls}</span>
+                <span style="background: rgba(52, 152, 219, 0.15); padding: 8px 16px; border-radius: 20px; font-weight:800; color: #2980b9;">M: ${boys}</span>
+                <span style="background: rgba(232, 67, 147, 0.15); padding: 8px 16px; border-radius: 20px; font-weight:800; color: #d63031;">F: ${girls}</span>
                 <span style="background: rgba(0, 184, 148, 0.15); padding: 8px 16px; border-radius: 20px; font-weight:800; color: #00b894;">Total: ${alunos.length}</span>
                 ${blockedCount > 0 ? `<span style="background: rgba(255, 118, 117, 0.15); padding: 8px 16px; border-radius: 20px; font-weight:800; color: var(--danger);">🚫 ${blockedCount} Proibidos</span>` : ''}
             `;
@@ -1141,11 +1137,8 @@
                 const li = document.createElement('li');
                 li.className = 'student-item ' + (aluno.gender === 'M' ? 'male' : 'female') + (aluno.blocked ? ' blocked' : '');
                 
-                const icon = aluno.gender === 'M' ? '👦' : '👧';
-                
                 li.innerHTML = `
                     <div class="student-info">
-                        <span class="gender-icon">${icon}</span>
                         <span>${aluno.nome}</span>
                     </div>
                     <button class="toggle-btn ${aluno.blocked ? 'active' : ''}" onclick="toggleProibicao('${turmaName}', '${aluno.nome.replace(/'/g, "\\'")}')">
@@ -1373,8 +1366,7 @@
                 card.innerHTML = `<h4 style="color: ${corObj}">Equipe ${index + 1} <span>🟢</span></h4>`;
                 
                 equipe.forEach(aluno => {
-                    const emoji = aluno.gender === 'M' ? '♂️' : '♀️';
-                    card.innerHTML += `<div class="equipe-membro"><span style="color:#aaa">${emoji}</span> ${aluno.nome}</div>`;
+                    card.innerHTML += `<div class="equipe-membro">${aluno.nome}</div>`;
                 });
                 container.appendChild(card);
             });
@@ -1602,7 +1594,7 @@
 
              setTimeout(() => {
                  btn.disabled = false;
-                 document.getElementById('roleta-winner-name').textContent = winner.nome + (winner.gender==='M'?' 👦':' 👧');
+                 document.getElementById('roleta-winner-name').textContent = winner.nome;
                  document.getElementById('roleta-winner-display').style.display = 'flex';
                  fireConfetti();
                  
@@ -1730,7 +1722,7 @@
                                 <div style="background: rgba(248, 249, 250, 1); padding: 15px; border-radius: var(--radius-sm); border-top: 4px solid var(--secondary);">
                                     <strong style="color: var(--dark); display: block; margin-bottom: 10px;">Equipe ${i+1}</strong>
                                     <div style="font-size: 0.95rem; color: var(--text-gray); line-height: 1.5;">
-                                        ${eq.map(m => `• ${m.nome} ${m.gender==='M'?'👦':'👧'}`).join('<br>')}
+                                        ${eq.map(m => `• ${m.nome}`).join('<br>')}
                                     </div>
                                 </div>
                             `).join('')}
