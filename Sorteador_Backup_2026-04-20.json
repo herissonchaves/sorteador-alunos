@@ -1,0 +1,369 @@
+{
+  "dados": {
+    "1D": [
+      {
+        "nome": "Abigail De Jesus Andrade",
+        "gender": "F",
+        "blocked": false
+      },
+      {
+        "nome": "Andersson Luis Ribeiro Farias",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "André Fillipe Fontes Nogueira",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Arnoldo Gabriel Oliveira Da Silva",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Arthur Filipe Campos Da Silva Borges",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Breno Ricardo Da Silva Moreno",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Caio Leonardo Nunes Diniz",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Caio Santos Silva",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Daniel Santos Damas",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Davi Arraes Goes",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "David Levi Andre Furtado",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Eduardo Henrique Silva Rodrigues",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Eduardo Jesus Moraes Araujo",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Emanuel Almeida Pinto",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Franklin Daniel Pereira Da Trindade",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Guilherme Aquino Lima De Sousa Martins",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Hyego Emanoel Sousa Dos Santos",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Isabela Castelo Galeno",
+        "gender": "F",
+        "blocked": false
+      },
+      {
+        "nome": "Jean Pablo Ferreira Duarte",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "João Daniel Borges Costa",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Joao Gabriel Santos Graça",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "João Pedro Nunes Almeida",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Josefany Mayrlen Sousa Matos",
+        "gender": "F",
+        "blocked": false
+      },
+      {
+        "nome": "Kaik Nunes Rodrigues",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Luis Emanuel Cascaes Pereira",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Mario De Vasconcelos Duarte Neto",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Matheus Dos Santos Silva",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Micaela Amanda Martins Paiva",
+        "gender": "F",
+        "blocked": false
+      },
+      {
+        "nome": "Miguel Vieira Lindoso",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Nayara Bastos Sales",
+        "gender": "F",
+        "blocked": false
+      },
+      {
+        "nome": "Nicolas Aquiles Renz Silva",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Pietro Rafael Fernandes Pinheiro",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Samuel Augusto Raposo Moreira",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Samuel Serra De Oliveira",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Sidney Edgar Gonçalves Teles",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Victor Ferreira Guedes",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Victor Ryan Botão Rodrigues",
+        "gender": "M",
+        "blocked": false
+      },
+      {
+        "nome": "Vitória Pacheco Marinheiro",
+        "gender": "F",
+        "blocked": false
+      }
+    ]
+  },
+  "historico": [
+    {
+      "turma": "1D",
+      "tipo": "equipes",
+      "data": "2026-04-20T16:44:09.551Z",
+      "equipes": [
+        [
+          {
+            "nome": "Pietro Rafael Fernandes Pinheiro",
+            "gender": "M"
+          },
+          {
+            "nome": "Isabela Castelo Galeno",
+            "gender": "F"
+          },
+          {
+            "nome": "Franklin Daniel Pereira Da Trindade",
+            "gender": "M"
+          },
+          {
+            "nome": "Victor Ferreira Guedes",
+            "gender": "M"
+          },
+          {
+            "nome": "Eduardo Henrique Silva Rodrigues",
+            "gender": "M"
+          },
+          {
+            "nome": "Kaik Nunes Rodrigues",
+            "gender": "M"
+          },
+          {
+            "nome": "Mario De Vasconcelos Duarte Neto",
+            "gender": "M"
+          }
+        ],
+        [
+          {
+            "nome": "Luis Emanuel Cascaes Pereira",
+            "gender": "M"
+          },
+          {
+            "nome": "Victor Ryan Bot�o Rodrigues",
+            "gender": "M"
+          },
+          {
+            "nome": "David Levi Andre Furtado",
+            "gender": "M"
+          },
+          {
+            "nome": "Emanuel Almeida Pinto",
+            "gender": "M"
+          },
+          {
+            "nome": "Abigail De Jesus Andrade",
+            "gender": "F"
+          },
+          {
+            "nome": "Guilherme Aquino Lima De Sousa Martins",
+            "gender": "M"
+          }
+        ],
+        [
+          {
+            "nome": "Matheus Dos Santos Silva",
+            "gender": "M"
+          },
+          {
+            "nome": "Samuel Augusto Raposo Moreira",
+            "gender": "M"
+          },
+          {
+            "nome": "Jean Pablo Ferreira Duarte",
+            "gender": "M"
+          },
+          {
+            "nome": "Andersson Luis Ribeiro Farias",
+            "gender": "M"
+          },
+          {
+            "nome": "Samuel Serra De Oliveira",
+            "gender": "M"
+          },
+          {
+            "nome": "Vit�ria Pacheco Marinheiro",
+            "gender": "F"
+          }
+        ],
+        [
+          {
+            "nome": "Hyego Emanoel Sousa Dos Santos",
+            "gender": "M"
+          },
+          {
+            "nome": "Nicolas Aquiles Renz Silva",
+            "gender": "M"
+          },
+          {
+            "nome": "Micaela Amanda Martins Paiva",
+            "gender": "F"
+          },
+          {
+            "nome": "Jo�o Daniel Borges Costa",
+            "gender": "M"
+          },
+          {
+            "nome": "Daniel Santos Damas",
+            "gender": "M"
+          },
+          {
+            "nome": "Arthur Filipe Campos Da Silva Borges",
+            "gender": "M"
+          }
+        ],
+        [
+          {
+            "nome": "Caio Santos Silva",
+            "gender": "M"
+          },
+          {
+            "nome": "Breno Ricardo Da Silva Moreno",
+            "gender": "M"
+          },
+          {
+            "nome": "Joao Gabriel Santos Gra�a",
+            "gender": "M"
+          },
+          {
+            "nome": "Jo�o Pedro Nunes Almeida",
+            "gender": "M"
+          },
+          {
+            "nome": "Nayara Bastos Sales",
+            "gender": "F"
+          },
+          {
+            "nome": "Sidney Edgar Gon�alves Teles",
+            "gender": "M"
+          }
+        ],
+        [
+          {
+            "nome": "Andr� Fillipe Fontes Nogueira",
+            "gender": "M"
+          },
+          {
+            "nome": "Josefany Mayrlen Sousa Matos",
+            "gender": "F"
+          },
+          {
+            "nome": "Eduardo Jesus Moraes Araujo",
+            "gender": "M"
+          },
+          {
+            "nome": "Caio Leonardo Nunes Diniz",
+            "gender": "M"
+          },
+          {
+            "nome": "Arnoldo Gabriel Oliveira Da Silva",
+            "gender": "M"
+          },
+          {
+            "nome": "Davi Arraes Goes",
+            "gender": "M"
+          },
+          {
+            "nome": "Miguel Vieira Lindoso",
+            "gender": "M"
+          }
+        ]
+      ]
+    }
+  ]
+}

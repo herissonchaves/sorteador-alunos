@@ -1145,6 +1145,7 @@
                 li.innerHTML = `
                     <div class="student-info">
                         <span>${aluno.nome}</span>
+                        <span style="cursor: pointer; opacity: 0.6; transition: opacity 0.2s; font-size: 0.9rem;" title="Editar Nome" onclick="editarNomeAluno('${turmaName}', '${aluno.nome.replace(/'/g, "\\'")}')" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✏️</span>
                     </div>
                     <button class="toggle-btn ${aluno.blocked ? 'active' : ''}" onclick="toggleProibicao('${turmaName}', '${aluno.nome.replace(/'/g, "\\'")}')">
                         ${aluno.blocked ? '🚫 Proibido' : 'Permitir'}
@@ -1168,6 +1169,26 @@
                     saveData(data);
                     // Atualiza a tela instantaneamente
                     openTurmaDetails(turmaName);
+                }
+            }
+        }
+
+        // Função para editar o nome do aluno
+        window.editarNomeAluno = function(turmaName, alunoNome) {
+            const novoNome = window.prompt(`Editando o nome do aluno na turma ${turmaName}:\n\nDigite o novo nome para "${alunoNome}":`, alunoNome);
+            
+            if (novoNome && novoNome.trim() !== '' && novoNome.trim() !== alunoNome) {
+                const data = loadData();
+                const alunos = data[turmaName];
+                
+                if (alunos) {
+                    const aluno = alunos.find(a => a.nome === alunoNome);
+                    if (aluno) {
+                        aluno.nome = novoNome.trim();
+                        saveData(data);
+                        // Atualiza a tela instantaneamente com o novo nome
+                        openTurmaDetails(turmaName);
+                    }
                 }
             }
         }
@@ -1816,8 +1837,13 @@
             
             const a = document.createElement('a');
             a.href = url;
-            const dataStr = new Date().toISOString().split('T')[0];
-            a.download = `Sorteador_Backup_${dataStr}.json`;
+            
+            const agora = new Date();
+            const dataStr = agora.toISOString().split('T')[0];
+            const horaStr = String(agora.getHours()).padStart(2, '0');
+            const minutoStr = String(agora.getMinutes()).padStart(2, '0');
+            
+            a.download = `Sorteador_Backup_${dataStr}_${horaStr}h${minutoStr}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
