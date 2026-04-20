@@ -582,32 +582,26 @@
                 <div class="menu-card" onclick="navigate('cadastrar')">
                     <div class="menu-icon">📋</div>
                     <div class="menu-title">Cadastrar Turmas</div>
-                    <div class="menu-desc">Importe alunos via arquivo CSV</div>
                 </div>
                 <div class="menu-card" onclick="navigate('turmas')">
                     <div class="menu-icon">👥</div>
                     <div class="menu-title">Ver Turmas</div>
-                    <div class="menu-desc">Gerencie turmas e alunos cadastradas</div>
                 </div>
                 <div class="menu-card" onclick="navigate('equipes')">
                     <div class="menu-icon">🎲</div>
                     <div class="menu-title">Sortear Equipes</div>
-                    <div class="menu-desc">Gere grupos balanceados e justos</div>
                 </div>
                 <div class="menu-card" onclick="navigate('roleta')">
                     <div class="menu-icon">🎡</div>
                     <div class="menu-title">Roleta Sorteadora</div>
-                    <div class="menu-desc">Sorteio muito divertido de aluno</div>
                 </div>
                 <div class="menu-card" onclick="navigate('historico')">
                     <div class="menu-icon">📊</div>
                     <div class="menu-title">Histórico de Sorteios</div>
-                    <div class="menu-desc">Veja os resultados anteriores</div>
                 </div>
                 <div class="menu-card" onclick="navigate('config')">
                     <div class="menu-icon">⚙️</div>
                     <div class="menu-title">Configurações</div>
-                    <div class="menu-desc">Gerencie dados e backups locais</div>
                 </div>
             </div>
         </div>
@@ -929,9 +923,20 @@
 
             const reader = new FileReader(); // API Web Offline Nativa
             reader.onload = (e) => {
-                processCSV(e.target.result);
+                const text = e.target.result;
+                // Se houver o caractere de substituição do UTF-8, significa que o arquivo
+                // provavelmente foi salvo em ANSI/Windows-1252 (ex: pelo Excel no Windows)
+                if (text.includes('')) {
+                    const readerFallback = new FileReader();
+                    readerFallback.onload = (eFallback) => {
+                        processCSV(eFallback.target.result);
+                    };
+                    readerFallback.readAsText(file, 'windows-1252');
+                } else {
+                    processCSV(text);
+                }
             };
-            reader.readAsText(file);
+            reader.readAsText(file, 'UTF-8');
         }
 
         function processCSV(text) {
