@@ -644,8 +644,9 @@
         <div id="page-detalhes-turma" class="page">
             <button class="btn-back" onclick="navigate('turmas')">⬅ Voltar p/ Turmas</button>
             <div class="card-bg">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                     <h2 class="page-title" id="detalhes-turma-nome" style="margin-bottom: 0;">📚 Turma</h2>
+                    <button id="btn-apagar-turma" class="btn-danger" onclick="iniciarApagarTurma()" style="display: flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.95rem;">🗑️ Apagar Turma</button>
                 </div>
                 
                 <div class="class-stats" id="detalhes-turma-stats" style="justify-content: flex-start; margin-bottom: 30px;"></div>
@@ -818,6 +819,22 @@
         </div>
     </div>
 
+    <!-- MODAL DE APAGAR TURMA -->
+    <div class="modal-overlay" id="modal-apagar-turma">
+        <div class="modal-content">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🗑️</div>
+            <h3 style="margin-bottom: 15px; color: var(--danger); font-size: 1.5rem;">Apagar a Turma?</h3>
+            <p style="font-size: 1.1rem; color: var(--text-gray); line-height: 1.5; margin-bottom: 25px;">
+                Tem certeza que deseja apagar a turma <strong id="modal-apagar-turma-nome" style="color: var(--dark);"></strong> e todos os seus alunos?<br><br>
+                <span style="color: var(--danger); font-weight: 800;">Esta ação não pode ser desfeita.</span>
+            </p>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="document.getElementById('modal-apagar-turma').classList.remove('active')">Cancelar</button>
+                <button class="btn-danger" id="btn-confirmar-apagar-turma">🗑️ Sim, Apagar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- 1. BANCO DE DADOS (LOCALSTORAGE) ---
         const DB_KEY = 'sorteador_turmas_dados';
@@ -921,22 +938,25 @@
                 return;
             }
 
-            const reader = new FileReader(); // API Web Offline Nativa
+            // Lê o arquivo como bytes brutos para detectar a codificação corretamente.
+            // Estratégia: tenta UTF-8 com modo estrito (fatal: true); se falhar,
+            // o arquivo está em Windows-1252 (padrão do Excel no Windows BR) e
+            // decodifica novamente com esse encoding. Resolve garbled text com acentos e ç.
+            const reader = new FileReader();
             reader.onload = (e) => {
-                const text = e.target.result;
-                // Se houver o caractere de substituição do UTF-8, significa que o arquivo
-                // provavelmente foi salvo em ANSI/Windows-1252 (ex: pelo Excel no Windows)
-                if (text.includes('')) {
-                    const readerFallback = new FileReader();
-                    readerFallback.onload = (eFallback) => {
-                        processCSV(eFallback.target.result);
-                    };
-                    readerFallback.readAsText(file, 'windows-1252');
-                } else {
-                    processCSV(text);
+                const buffer = e.target.result;
+                let text;
+                try {
+                    const decoder = new TextDecoder('utf-8', { fatal: true });
+                    text = decoder.decode(buffer);
+                } catch (err) {
+                    // Falhou como UTF-8 → tenta Windows-1252 (ANSI do Excel)
+                    const fallbackDecoder = new TextDecoder('windows-1252');
+                    text = fallbackDecoder.decode(buffer);
                 }
+                processCSV(text);
             };
-            reader.readAsText(file, 'UTF-8');
+            reader.readAsArrayBuffer(file);
         }
 
         function processCSV(text) {
@@ -1192,6 +1212,29 @@
                 }
             }
         }
+
+        // --- APAGAR TURMA ---
+        let turmaParaApagar = null;
+
+        // Abre o modal de confirmação de exclusão de turma
+        window.iniciarApagarTurma = function() {
+            const tituloEl = document.getElementById('detalhes-turma-nome');
+            // Extrai o nome da turma do título: "🏫 Detalhes da Turma: 1C" → "1C"
+            turmaParaApagar = tituloEl.textContent.replace('🏫 Detalhes da Turma: ', '').trim();
+            document.getElementById('modal-apagar-turma-nome').textContent = turmaParaApagar;
+            document.getElementById('modal-apagar-turma').classList.add('active');
+        }
+
+        // Executa a exclusão ao confirmar no modal
+        document.getElementById('btn-confirmar-apagar-turma').addEventListener('click', () => {
+            if (!turmaParaApagar) return;
+            const data = loadData();
+            delete data[turmaParaApagar];
+            saveData(data);
+            document.getElementById('modal-apagar-turma').classList.remove('active');
+            turmaParaApagar = null;
+            navigate('turmas');
+        });
 
         // --- 5. LÓGICA DE SORTEAR EQUIPES ---
         const HIST_KEY = 'sorteador_historico';
