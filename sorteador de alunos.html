@@ -582,32 +582,26 @@
                 <div class="menu-card" onclick="navigate('cadastrar')">
                     <div class="menu-icon">📋</div>
                     <div class="menu-title">Cadastrar Turmas</div>
-                    <div class="menu-desc">Importe alunos via arquivo CSV</div>
                 </div>
                 <div class="menu-card" onclick="navigate('turmas')">
                     <div class="menu-icon">👥</div>
                     <div class="menu-title">Ver Turmas</div>
-                    <div class="menu-desc">Gerencie turmas e alunos cadastradas</div>
                 </div>
                 <div class="menu-card" onclick="navigate('equipes')">
                     <div class="menu-icon">🎲</div>
                     <div class="menu-title">Sortear Equipes</div>
-                    <div class="menu-desc">Gere grupos balanceados e justos</div>
                 </div>
                 <div class="menu-card" onclick="navigate('roleta')">
                     <div class="menu-icon">🎡</div>
                     <div class="menu-title">Roleta Sorteadora</div>
-                    <div class="menu-desc">Sorteio muito divertido de aluno</div>
                 </div>
                 <div class="menu-card" onclick="navigate('historico')">
                     <div class="menu-icon">📊</div>
                     <div class="menu-title">Histórico de Sorteios</div>
-                    <div class="menu-desc">Veja os resultados anteriores</div>
                 </div>
                 <div class="menu-card" onclick="navigate('config')">
                     <div class="menu-icon">⚙️</div>
                     <div class="menu-title">Configurações</div>
-                    <div class="menu-desc">Gerencie dados e backups locais</div>
                 </div>
             </div>
         </div>
@@ -650,8 +644,9 @@
         <div id="page-detalhes-turma" class="page">
             <button class="btn-back" onclick="navigate('turmas')">⬅ Voltar p/ Turmas</button>
             <div class="card-bg">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                     <h2 class="page-title" id="detalhes-turma-nome" style="margin-bottom: 0;">📚 Turma</h2>
+                    <button id="btn-apagar-turma" class="btn-danger" onclick="iniciarApagarTurma()" style="display: flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.95rem;">🗑️ Apagar Turma</button>
                 </div>
                 
                 <div class="class-stats" id="detalhes-turma-stats" style="justify-content: flex-start; margin-bottom: 30px;"></div>
@@ -824,6 +819,22 @@
         </div>
     </div>
 
+    <!-- MODAL DE APAGAR TURMA -->
+    <div class="modal-overlay" id="modal-apagar-turma">
+        <div class="modal-content">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🗑️</div>
+            <h3 style="margin-bottom: 15px; color: var(--danger); font-size: 1.5rem;">Apagar a Turma?</h3>
+            <p style="font-size: 1.1rem; color: var(--text-gray); line-height: 1.5; margin-bottom: 25px;">
+                Tem certeza que deseja apagar a turma <strong id="modal-apagar-turma-nome" style="color: var(--dark);"></strong> e todos os seus alunos?<br><br>
+                <span style="color: var(--danger); font-weight: 800;">Esta ação não pode ser desfeita.</span>
+            </p>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="document.getElementById('modal-apagar-turma').classList.remove('active')">Cancelar</button>
+                <button class="btn-danger" id="btn-confirmar-apagar-turma">🗑️ Sim, Apagar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- 1. BANCO DE DADOS (LOCALSTORAGE) ---
         const DB_KEY = 'sorteador_turmas_dados';
@@ -927,11 +938,25 @@
                 return;
             }
 
-            const reader = new FileReader(); // API Web Offline Nativa
+            // Lê o arquivo como bytes brutos para detectar a codificação corretamente.
+            // Estratégia: tenta UTF-8 com modo estrito (fatal: true); se falhar,
+            // o arquivo está em Windows-1252 (padrão do Excel no Windows BR) e
+            // decodifica novamente com esse encoding. Resolve garbled text com acentos e ç.
+            const reader = new FileReader();
             reader.onload = (e) => {
-                processCSV(e.target.result);
+                const buffer = e.target.result;
+                let text;
+                try {
+                    const decoder = new TextDecoder('utf-8', { fatal: true });
+                    text = decoder.decode(buffer);
+                } catch (err) {
+                    // Falhou como UTF-8 → tenta Windows-1252 (ANSI do Excel)
+                    const fallbackDecoder = new TextDecoder('windows-1252');
+                    text = fallbackDecoder.decode(buffer);
+                }
+                processCSV(text);
             };
-            reader.readAsText(file);
+            reader.readAsArrayBuffer(file);
         }
 
         function processCSV(text) {
@@ -1140,6 +1165,7 @@
                 li.innerHTML = `
                     <div class="student-info">
                         <span>${aluno.nome}</span>
+                        <span style="cursor: pointer; opacity: 0.6; transition: opacity 0.2s; font-size: 0.9rem;" title="Editar Nome" onclick="editarNomeAluno('${turmaName}', '${aluno.nome.replace(/'/g, "\\'")}')" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✏️</span>
                     </div>
                     <button class="toggle-btn ${aluno.blocked ? 'active' : ''}" onclick="toggleProibicao('${turmaName}', '${aluno.nome.replace(/'/g, "\\'")}')">
                         ${aluno.blocked ? '🚫 Proibido' : 'Permitir'}
@@ -1166,6 +1192,49 @@
                 }
             }
         }
+
+        // Função para editar o nome do aluno
+        window.editarNomeAluno = function(turmaName, alunoNome) {
+            const novoNome = window.prompt(`Editando o nome do aluno na turma ${turmaName}:\n\nDigite o novo nome para "${alunoNome}":`, alunoNome);
+            
+            if (novoNome && novoNome.trim() !== '' && novoNome.trim() !== alunoNome) {
+                const data = loadData();
+                const alunos = data[turmaName];
+                
+                if (alunos) {
+                    const aluno = alunos.find(a => a.nome === alunoNome);
+                    if (aluno) {
+                        aluno.nome = novoNome.trim();
+                        saveData(data);
+                        // Atualiza a tela instantaneamente com o novo nome
+                        openTurmaDetails(turmaName);
+                    }
+                }
+            }
+        }
+
+        // --- APAGAR TURMA ---
+        let turmaParaApagar = null;
+
+        // Abre o modal de confirmação de exclusão de turma
+        window.iniciarApagarTurma = function() {
+            const tituloEl = document.getElementById('detalhes-turma-nome');
+            // Extrai o nome da turma do título: "🏫 Detalhes da Turma: 1C" → "1C"
+            turmaParaApagar = tituloEl.textContent.replace('🏫 Detalhes da Turma: ', '').trim();
+            document.getElementById('modal-apagar-turma-nome').textContent = turmaParaApagar;
+            document.getElementById('modal-apagar-turma').classList.add('active');
+        }
+
+        // Executa a exclusão ao confirmar no modal
+        document.getElementById('btn-confirmar-apagar-turma').addEventListener('click', () => {
+            if (!turmaParaApagar) return;
+            const data = loadData();
+            delete data[turmaParaApagar];
+            saveData(data);
+            document.getElementById('modal-apagar-turma').classList.remove('active');
+            turmaParaApagar = null;
+            navigate('turmas');
+        });
 
         // --- 5. LÓGICA DE SORTEAR EQUIPES ---
         const HIST_KEY = 'sorteador_historico';
@@ -1811,8 +1880,13 @@
             
             const a = document.createElement('a');
             a.href = url;
-            const dataStr = new Date().toISOString().split('T')[0];
-            a.download = `Sorteador_Backup_${dataStr}.json`;
+            
+            const agora = new Date();
+            const dataStr = agora.toISOString().split('T')[0];
+            const horaStr = String(agora.getHours()).padStart(2, '0');
+            const minutoStr = String(agora.getMinutes()).padStart(2, '0');
+            
+            a.download = `Sorteador_Backup_${dataStr}_${horaStr}h${minutoStr}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
