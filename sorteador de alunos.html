@@ -673,6 +673,11 @@
                         <input type="number" id="equipes-num" min="2" value="2" style="width: 100%; padding: 12px; border-radius: var(--radius-sm); border: 2px solid #eee; font-size: 1.1rem; outline: none;">
                     </div>
                 </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="font-weight: 800; color: var(--dark); display: block; margin-bottom: 8px;">3. Nome do Sorteio (Opcional)</label>
+                    <input type="text" id="equipes-nome-sorteio" placeholder="Ex: Projeto de Ciências" style="width: 100%; padding: 12px; border-radius: var(--radius-sm); border: 2px solid #eee; font-size: 1.1rem; outline: none;">
+                </div>
 
                 <button id="btn-sortear-equipes" class="btn-primary" style="width: 100%; font-size: 1.3rem; padding: 15px; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
                     <span id="btn-dice-icon" style="font-size: 1.6rem; display: inline-block;">🎲</span> Sortear Equipes!
@@ -756,6 +761,16 @@
             </div>
         </div>
 
+        <div id="page-historico-turma" class="page">
+            <button class="btn-back" onclick="navigate('historico')">⬅ Voltar para Turmas</button>
+            <div class="card-bg">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2 class="page-title" id="titulo-historico-turma" style="margin: 0;">📚 Sorteios da Turma</h2>
+                </div>
+                <div id="historico-turma-lista-container"></div>
+            </div>
+        </div>
+
         <div id="page-config" class="page">
             <button class="btn-back" onclick="navigate('home')">⬅ Voltar ao Menu</button>
             <div class="card-bg">
@@ -785,7 +800,7 @@
 
     </div>
 
-    <footer>✨ Sorteador de Turmas v1.0 &mdash; 100% Offline</footer>
+    <footer>Criado pelo prof: Hérisson Chaves versao 2.0</footer>
 
     <!-- MODAL DE LIMPEZA -->
     <div class="modal-overlay" id="modal-limpeza">
@@ -1276,6 +1291,7 @@
         document.getElementById('btn-sortear-equipes').addEventListener('click', () => {
             const turmaName = document.getElementById('equipes-turma-select').value;
             const numEquipes = parseInt(document.getElementById('equipes-num').value);
+            const nomeSorteioInput = document.getElementById('equipes-nome-sorteio').value.trim();
             
             if(!turmaName || numEquipes < 2) {
                 alert("Selecione uma turma válida e mínimo de 2 equipes.");
@@ -1303,7 +1319,7 @@
 
             // Simula um delay para "Pensar"
             setTimeout(() => {
-                executarSorteioAlgoritmo(turmaName, alunos, numEquipes);
+                executarSorteioAlgoritmo(turmaName, alunos, numEquipes, nomeSorteioInput);
 
                 loading.style.display = 'none';
                 resultadoContainer.style.display = 'block';
@@ -1312,7 +1328,7 @@
             }, 1200);
         });
 
-        function executarSorteioAlgoritmo(turmaName, alunos, numEquipes) {
+        function executarSorteioAlgoritmo(turmaName, alunos, numEquipes, nomeSorteio) {
             // Conta histórico para evitar repetições
             const historico = loadHistorico().filter(h => h.turma === turmaName && h.tipo === 'equipes');
             const pairScores = {};
@@ -1409,6 +1425,7 @@
             currentSorteioResultado = {
                 turma: turmaName,
                 tipo: 'equipes',
+                nomeSorteio: nomeSorteio || 'Sorteio de Equipes',
                 data: new Date().toISOString(),
                 equipes: teams.map(t => t.membros.map(m => ({nome: m.nome, gender: m.gender})))
             };
@@ -1742,7 +1759,6 @@
             const container = document.getElementById('historico-lista-container');
             container.innerHTML = '';
             
-            // Filtramos só do tipo equipes (conforme requisito, não salvar roleta)
             const historicoAll = loadHistorico();
             const historicoEquipes = historicoAll.filter(h => h.tipo === 'equipes');
             
@@ -1755,72 +1771,267 @@
                 return;
             }
 
-            historicoEquipes.forEach((h, index) => {
-                const dateObj = new Date(h.data);
-                const dString = dateObj.toLocaleDateString() + ' às ' + dateObj.toLocaleTimeString();
+            const historyByTurma = {};
+            historicoEquipes.forEach(h => {
+                if(!historyByTurma[h.turma]) historyByTurma[h.turma] = [];
+                historyByTurma[h.turma].push(h);
+            });
 
-                const card = document.createElement('div');
-                card.style.background = '#fff';
-                card.style.border = '2px solid #f1f2f6';
-                card.style.borderRadius = 'var(--radius-md)';
-                card.style.padding = '20px';
-                card.style.marginBottom = '20px';
-                card.style.boxShadow = '0 5px 10px rgba(0,0,0,0.02)';
+            Object.keys(historyByTurma).sort().forEach((turma) => {
+                const sorteiosTurma = historyByTurma[turma];
+                const cardTurma = document.createElement('div');
+                cardTurma.style.background = '#fff';
+                cardTurma.style.border = '2px solid #f1f2f6';
+                cardTurma.style.borderRadius = 'var(--radius-md)';
+                cardTurma.style.padding = '20px';
+                cardTurma.style.marginBottom = '20px';
+                cardTurma.style.boxShadow = 'var(--shadow)';
+                cardTurma.style.cursor = 'pointer';
+                cardTurma.style.transition = 'transform 0.2s';
+                cardTurma.onmouseover = () => cardTurma.style.transform = 'translateY(-3px)';
+                cardTurma.onmouseout = () => cardTurma.style.transform = 'translateY(0)';
+                cardTurma.onclick = () => abrirHistoricoTurma(turma);
 
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleDetails('hist-det-${index}')">
+                cardTurma.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <strong style="color: var(--primary); font-size: 1.4rem;">📚 Turma: ${h.turma}</strong>
-                            <p style="color: var(--text-gray); font-size: 0.95rem; margin-top: 5px;">Sorteio: ${dString}</p>
+                            <strong style="color: var(--primary); font-size: 1.4rem;">📚 Turma: ${turma}</strong>
+                            <p style="color: var(--text-gray); font-size: 0.95rem; margin-top: 5px;">${sorteiosTurma.length} sorteio(s) registrado(s)</p>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <span style="background: rgba(108, 92, 231, 0.1); color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 800;">${h.equipes ? h.equipes.length : 0} Equipes</span>
-                            <span id="hist-det-arrow-${index}" style="font-size: 1.5rem; transition: transform 0.3s; color: var(--primary);">▼</span>
-                        </div>
-                    </div>
-                    <div id="hist-det-${index}" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #eee;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                            <h4 style="color: var(--dark);">Lista das Equipes</h4>
-                            <div>
-                                <button class="btn-secondary" style="padding: 6px 14px; font-size: 0.85rem; background: #fff; border: 2px solid var(--secondary); transition: all 0.3s;" onclick="limparHistoricoSorteio(this, '${h.data}')">Excluir Só Este</button>
-                                <button class="btn-danger" style="padding: 6px 14px; font-size: 0.85rem; transition: all 0.3s;" onclick="limparHistoricoTurma(this, '${h.turma.replace(/'/g, "\\'")}')">Limpar Toda a Turma</button>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">
-                            ${(h.equipes || []).map((eq, i) => `
-                                <div style="background: rgba(248, 249, 250, 1); padding: 15px; border-radius: var(--radius-sm); border-top: 4px solid var(--secondary);">
-                                    <strong style="color: var(--dark); display: block; margin-bottom: 10px;">Equipe ${i+1}</strong>
-                                    <div style="font-size: 0.95rem; color: var(--text-gray); line-height: 1.5;">
-                                        ${eq.map(m => `• ${m.nome}`).join('<br>')}
-                                    </div>
-                                </div>
-                            `).join('')}
+                        <div style="display: flex; align-items: center;">
+                            <span style="font-size: 1.5rem; color: var(--primary);">➔</span>
                         </div>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(cardTurma);
             });
         }
         
-        window.toggleDetails = (id) => {
-            const el = document.getElementById(id);
-            const arrow = document.getElementById(id.replace('hist-det-', 'hist-det-arrow-'));
-            if(el.style.display === 'none') {
-                el.style.display = 'block';
-                arrow.style.transform = 'rotate(180deg)';
-            } else {
-                el.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
+        window.abrirHistoricoTurma = function(turma) {
+            document.getElementById('titulo-historico-turma').innerHTML = `📚 Sorteios: ${turma}`;
+            
+            const container = document.getElementById('historico-turma-lista-container');
+            container.innerHTML = `
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                    <button class="btn-danger" style="padding: 8px 16px; font-size: 0.9rem;" onclick="limparHistoricoTurma(this, '${turma.replace(/'/g, "\\'")}')">Limpar Todo Histórico da Turma</button>
+                </div>
+                <div id="historico-turma-sorteios" style="display: flex; flex-direction: column; gap: 20px;"></div>
+            `;
+            const listaSorteiosContainer = document.getElementById('historico-turma-sorteios');
+            
+            const historicoAll = loadHistorico();
+            const historicoEquipes = historicoAll.filter(h => h.tipo === 'equipes' && h.turma === turma);
+            
+            if (historicoEquipes.length === 0) {
+                navigate('historico');
+                return;
+            }
+
+            historicoEquipes.forEach((h, sIndex) => {
+                const dateObj = new Date(h.data);
+                const dString = dateObj.toLocaleDateString() + ' às ' + dateObj.toLocaleTimeString();
+                const nomeSorteio = h.nomeSorteio || 'Sorteio de Equipes';
+                const uniqueId = h.data;
+
+                const cardSorteio = document.createElement('div');
+                cardSorteio.style.background = 'rgba(248, 249, 250, 1)';
+                cardSorteio.style.borderRadius = 'var(--radius-sm)';
+                cardSorteio.style.padding = '20px';
+                cardSorteio.style.borderTop = '4px solid var(--secondary)';
+                cardSorteio.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+
+                let equipesHtml = '';
+                (h.equipes || []).forEach((eq, eqIndex) => {
+                    equipesHtml += `
+                        <div class="equipe-dropzone" data-sorteio-id="${uniqueId}" data-equipe-index="${eqIndex}" style="margin-bottom: 15px; background: #fff; padding: 15px; border-radius: 8px; border: 2px dashed #ccc; min-height: 100px; transition: background 0.2s;">
+                            <strong style="color: var(--dark); display: block; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; pointer-events: none;">Equipe ${eqIndex + 1}</strong>
+                            <ul class="equipe-lista-alunos" style="list-style: none; padding-left: 0; min-height: 50px;">
+                                ${eq.map(m => `
+                                    <li class="aluno-draggable" draggable="true" data-sorteio-id="${uniqueId}" data-equipe-index="${eqIndex}" data-aluno-nome="${m.nome.replace(/'/g, "&apos;")}" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 10px 12px; background: #fdfdfd; border: 1px solid #e1e8ed; border-radius: 6px; cursor: grab; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                        <span style="font-weight: 600; pointer-events: none;">${m.nome}</span>
+                                        <span style="font-size: 1.2rem; color: #ccc; pointer-events: none;">☰</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                });
+
+                cardSorteio.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <div>
+                            <strong style="color: var(--dark); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                ${nomeSorteio}
+                                <span style="font-size: 1.1rem; cursor: pointer; color: var(--primary);" onclick="editarNomeSorteio('${uniqueId}', '${nomeSorteio.replace(/'/g, "\\'")}', '${turma.replace(/'/g, "\\'")}')" title="Editar Nome do Sorteio">✏️</span>
+                            </strong>
+                            <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 5px;">Realizado em: ${dString}</p>
+                            <p style="color: var(--secondary); font-size: 0.85rem; font-weight: bold; margin-top: 8px;">Dica: Arraste os alunos para mudar de equipe!</p>
+                        </div>
+                        <div>
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; background: #fff; border: 2px solid var(--danger); color: var(--danger);" onclick="limparHistoricoSorteio(this, '${uniqueId}', '${turma.replace(/'/g, "\\'")}')">Excluir Sorteio</button>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 20px;">
+                        ${equipesHtml}
+                    </div>
+                `;
+                listaSorteiosContainer.appendChild(cardSorteio);
+            });
+            
+            setupDragAndDrop();
+            navigate('historico-turma');
+        };
+
+        window.editarNomeSorteio = function(uniqueId, nomeAtual, turma) {
+            const novoNome = window.prompt(`Editando nome do sorteio:\n\nDigite o novo nome para "${nomeAtual}":`, nomeAtual);
+            if (novoNome && novoNome.trim() !== '' && novoNome.trim() !== nomeAtual) {
+                const hist = loadHistorico();
+                const sorteio = hist.find(h => h.data === uniqueId);
+                if (sorteio) {
+                    sorteio.nomeSorteio = novoNome.trim();
+                    saveHistorico(hist);
+                    abrirHistoricoTurma(turma);
+                }
             }
         };
 
+        // --- LÓGICA DE ARRASTAR E SOLTAR ---
+        let draggando = null;
+        let dragClone = null;
+
+        function setupDragAndDrop() {
+            const draggables = document.querySelectorAll('.aluno-draggable');
+            const dropzones = document.querySelectorAll('.equipe-dropzone');
+
+            // -- Desktop Drag & Drop --
+            draggables.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggando = item;
+                    item.style.opacity = '0.5';
+                });
+                item.addEventListener('dragend', () => {
+                    item.style.opacity = '1';
+                    draggando = null;
+                    dropzones.forEach(dz => dz.style.background = '#fff');
+                });
+            });
+
+            dropzones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault(); 
+                    zone.style.background = 'rgba(108, 92, 231, 0.1)';
+                });
+                zone.addEventListener('dragleave', () => {
+                    zone.style.background = '#fff';
+                });
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.style.background = '#fff';
+                    if (draggando) {
+                        efetuarMovimento(draggando, zone);
+                    }
+                });
+            });
+
+            // -- Touch Drag & Drop (iPad/Mobile) --
+            draggables.forEach(item => {
+                item.addEventListener('touchstart', (e) => {
+                    draggando = item;
+                    const touch = e.touches[0];
+
+                    dragClone = item.cloneNode(true);
+                    dragClone.style.position = 'fixed';
+                    dragClone.style.zIndex = '9999';
+                    dragClone.style.opacity = '0.9';
+                    dragClone.style.width = item.offsetWidth + 'px';
+                    dragClone.style.left = (touch.clientX - item.offsetWidth / 2) + 'px';
+                    dragClone.style.top = (touch.clientY - item.offsetHeight / 2) + 'px';
+                    dragClone.style.pointerEvents = 'none'; 
+                    dragClone.style.boxShadow = '0 10px 20px rgba(0,0,0,0.2)';
+                    document.body.appendChild(dragClone);
+                    
+                    item.style.opacity = '0.3';
+                }, {passive: false});
+
+                item.addEventListener('touchmove', (e) => {
+                    if (!draggando || !dragClone) return;
+                    e.preventDefault(); 
+                    
+                    const touch = e.touches[0];
+                    dragClone.style.left = (touch.clientX - dragClone.offsetWidth / 2) + 'px';
+                    dragClone.style.top = (touch.clientY - dragClone.offsetHeight / 2) + 'px';
+
+                    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                    dropzones.forEach(dz => dz.style.background = '#fff');
+                    if (elUnder) {
+                        const dropzone = elUnder.closest('.equipe-dropzone');
+                        if (dropzone) {
+                            dropzone.style.background = 'rgba(108, 92, 231, 0.1)';
+                        }
+                    }
+                }, {passive: false});
+
+                item.addEventListener('touchend', (e) => {
+                    if (!draggando || !dragClone) return;
+                    
+                    const touch = e.changedTouches[0];
+                    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                    
+                    if (dragClone.parentNode) {
+                        dragClone.parentNode.removeChild(dragClone);
+                    }
+                    dragClone = null;
+                    item.style.opacity = '1';
+
+                    if (elUnder) {
+                        const dropzone = elUnder.closest('.equipe-dropzone');
+                        if (dropzone) {
+                            dropzone.style.background = '#fff';
+                            efetuarMovimento(draggando, dropzone);
+                        }
+                    }
+                    
+                    dropzones.forEach(dz => dz.style.background = '#fff');
+                    draggando = null;
+                });
+            });
+        }
+
+        function efetuarMovimento(itemEl, dropzoneEl) {
+            const sorteioId = itemEl.dataset.sorteioId;
+            const fromEqIndex = parseInt(itemEl.dataset.equipeIndex);
+            const toEqIndex = parseInt(dropzoneEl.dataset.equipeIndex);
+            const alunoNome = itemEl.dataset.alunoNome.replace(/&apos;/g, "'");
+
+            if (fromEqIndex !== toEqIndex && sorteioId === dropzoneEl.dataset.sorteioId) {
+                moverAlunoEquipe(sorteioId, alunoNome, fromEqIndex, toEqIndex);
+            }
+        }
+
+        function moverAlunoEquipe(uniqueId, alunoNome, fromEqIndex, toEqIndex) {
+            const hist = loadHistorico();
+            const sorteio = hist.find(h => h.data === uniqueId);
+            if (sorteio && sorteio.equipes) {
+                const fromTeam = sorteio.equipes[fromEqIndex];
+                const toTeam = sorteio.equipes[toEqIndex];
+                
+                const alunoIndex = fromTeam.findIndex(a => a.nome === alunoNome);
+                if (alunoIndex !== -1) {
+                    const aluno = fromTeam.splice(alunoIndex, 1)[0];
+                    toTeam.push(aluno);
+                    saveHistorico(hist);
+                    abrirHistoricoTurma(sorteio.turma);
+                }
+            }
+        }
+
         // Substituição do confirm() nativo por Double-Tap (Problema clássico em iPads/PWA)
-        window.limparHistoricoSorteio = (btn, isodata) => {
+        window.limparHistoricoSorteio = (btn, isodata, turma) => {
             if (btn.dataset.confirming === "true") {
                 let hist = loadHistorico();
                 hist = hist.filter(h => h.data !== isodata);
                 saveHistorico(hist);
-                renderHistorico();
+                abrirHistoricoTurma(turma);
             } else {
                 const oldText = btn.innerHTML;
                 const oldBg = btn.style.background;
@@ -1837,7 +2048,7 @@
                         btn.innerHTML = oldText;
                         btn.style.background = oldBg;
                         btn.style.color = oldColor;
-                        btn.style.borderColor = "var(--secondary)";
+                        btn.style.borderColor = "var(--danger)";
                         btn.dataset.confirming = "false";
                     }
                 }, 3000);
@@ -1849,7 +2060,7 @@
                 let hist = loadHistorico();
                 hist = hist.filter(h => h.turma !== turma);
                 saveHistorico(hist);
-                renderHistorico();
+                navigate('historico');
             } else {
                 const oldText = btn.innerHTML;
                 
